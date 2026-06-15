@@ -417,6 +417,122 @@
     margin-left: 0.5rem;
     vertical-align: middle;
   }
+  .prog-cell-editable {
+    cursor: pointer;
+    position: relative;
+    transition: background 0.15s;
+  }
+  .prog-cell-editable:hover {
+    background: rgba(255,102,68,0.12) !important;
+    outline: 1px solid rgba(255,102,68,0.5);
+    color: #ff6644;
+  }
+  .macro-card-editable {
+    cursor: pointer;
+    border: 1px dashed transparent;
+    transition: border-color 0.15s;
+  }
+  .macro-card-editable:hover {
+    border-color: rgba(255,102,68,0.5) !important;
+  }
+  .meal-edit-pencil {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(255,102,68,0.18);
+    border: 1px solid rgba(255,102,68,0.4);
+    color: #ff6644;
+    font-size: 0.6rem;
+    padding: 0.15rem 0.4rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'DM Mono', monospace;
+    z-index: 10;
+  }
+  .meal-edit-pencil:hover { background: rgba(255,102,68,0.3); }
+
+  /* ─── Client-side meal logging ─── */
+  .meal-log-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 0.6rem;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .meal-log-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.15s;
+  }
+  .meal-log-btn:hover { color: var(--text); border-color: var(--accent); }
+  .meal-log-btn.ate-btn:hover  { color: var(--accent3); border-color: rgba(0,229,160,0.6); }
+  .meal-log-btn.swap-btn:hover { color: var(--warn);     border-color: rgba(255,184,74,0.6); }
+  .meal-log-btn.skip-btn:hover { color: var(--danger);   border-color: rgba(255,68,102,0.6); }
+  .meal-log-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.3rem 0.7rem;
+    border-radius: 5px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .meal-log-status.ate  { background: rgba(0,229,160,0.12); color: var(--accent3); border: 1px solid rgba(0,229,160,0.3); }
+  .meal-log-status.swap { background: rgba(255,184,74,0.12); color: var(--warn);     border: 1px solid rgba(255,184,74,0.3); }
+  .meal-log-status.skip { background: rgba(255,68,102,0.12); color: var(--danger);   border: 1px solid rgba(255,68,102,0.3); }
+  .meal-log-status .undo {
+    margin-left: 0.4rem;
+    color: var(--muted);
+    cursor: pointer;
+    text-decoration: underline;
+    font-size: 0.6rem;
+  }
+  .meal-log-status .undo:hover { color: var(--text); }
+  .actuals-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.5rem;
+    margin-top: 1rem;
+  }
+  .actuals-card.complete {
+    border-color: rgba(0,229,160,0.5);
+    background: rgba(0,229,160,0.05);
+  }
+
+  /* ─── Client-side workout logging ─── */
+  .log-set-btn {
+    background: rgba(0,229,160,0.12);
+    border: 1px solid rgba(0,229,160,0.4);
+    color: var(--accent3);
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.08em;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 0.4rem;
+    text-transform: uppercase;
+  }
+  .log-set-btn:hover { background: rgba(0,229,160,0.25); }
+  .last-logged {
+    display: block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.62rem;
+    color: var(--accent3);
+    margin-top: 0.25rem;
+    opacity: 0.85;
+  }
 
   /* ─── Edit modal ─── */
   .edit-modal-grid {
@@ -1119,6 +1235,94 @@
   </div>
 </div>
 
+<!-- MACRO TARGET EDIT MODAL (trainer mode) -->
+<div class="modal-overlay" id="macro-modal-overlay" onclick="closeMacroModal(event)">
+  <div class="modal" style="max-width:480px;">
+    <button class="modal-close" onclick="cancelMacroEdit()">✕</button>
+    <div class="modal-title" id="macro-modal-title">Edit Phase Macros</div>
+    <div class="edit-modal-grid">
+      <label for="mc-cal">Daily kcal</label> <input id="mc-cal" type="number" min="0" />
+      <label for="mc-p">Protein (g)</label>  <input id="mc-p" type="number" min="0" />
+      <label for="mc-c">Carbs (g)</label>    <input id="mc-c" type="number" min="0" />
+      <label for="mc-f">Fat (g)</label>      <input id="mc-f" type="number" min="0" />
+    </div>
+    <p style="font-size:0.75rem;color:var(--muted);margin-bottom:1rem;">If you change kcal, you'll be asked whether to rescale all meals in this phase proportionally.</p>
+    <div class="edit-modal-actions">
+      <button class="edit-modal-cancel" onclick="cancelMacroEdit()">Cancel</button>
+      <button class="edit-modal-save" onclick="saveMacroEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MEAL EDIT MODAL (trainer mode) -->
+<div class="modal-overlay" id="meal-modal-overlay" onclick="closeMealModal(event)">
+  <div class="modal" style="max-width:560px;">
+    <button class="modal-close" onclick="cancelMealEdit()">✕</button>
+    <div class="modal-title" id="meal-modal-title">Edit Meal</div>
+    <div class="edit-modal-grid">
+      <label for="ml-time">Time</label>       <input id="ml-time" type="text" placeholder="e.g. 7:00am" />
+      <label for="ml-name">Name</label>       <input id="ml-name" type="text" />
+      <label for="ml-desc">Description</label><input id="ml-desc" type="text" placeholder="e.g. 3 eggs, 2 toast, ..." />
+      <label for="ml-cal">Calories</label>    <input id="ml-cal" type="number" min="0" />
+      <label for="ml-p">Protein (g)</label>   <input id="ml-p" type="number" min="0" />
+      <label for="ml-c">Carbs (g)</label>     <input id="ml-c" type="number" min="0" />
+      <label for="ml-f">Fat (g)</label>       <input id="ml-f" type="number" min="0" />
+    </div>
+    <div class="edit-modal-actions">
+      <button class="edit-modal-cancel" onclick="cancelMealEdit()">Cancel</button>
+      <button class="edit-modal-save" onclick="saveMealEdit()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT WORKOUT LOG MODAL — record actual sets/reps/weight per exercise -->
+<div class="modal-overlay" id="workout-log-overlay" onclick="closeWorkoutLog(event)">
+  <div class="modal" style="max-width:480px;">
+    <button class="modal-close" onclick="cancelWorkoutLog()">✕</button>
+    <div class="modal-title" id="workout-log-title">Log this set</div>
+    <p style="font-size:0.78rem;color:var(--muted);margin-bottom:1rem;">What you actually hit — coach sees this on their dashboard.</p>
+    <div class="edit-modal-grid">
+      <label for="wl-sets">Sets done</label>     <input id="wl-sets" type="text" placeholder="e.g. 3" />
+      <label for="wl-reps">Reps</label>          <input id="wl-reps" type="text" placeholder="e.g. 8" />
+      <label for="wl-weight">Weight</label>      <input id="wl-weight" type="text" placeholder="e.g. 85kg" />
+      <label for="wl-rpe">RPE (1-10)</label>     <input id="wl-rpe" type="text" placeholder="e.g. 8" />
+      <label for="wl-notes">Notes (opt)</label>  <input id="wl-notes" type="text" placeholder="e.g. felt strong" />
+    </div>
+    <div class="edit-modal-actions">
+      <button class="edit-modal-cancel" onclick="cancelWorkoutLog()">Cancel</button>
+      <button class="edit-modal-save" onclick="saveWorkoutLog()">Log it</button>
+    </div>
+  </div>
+</div>
+
+<!-- CLIENT MEAL SWAP MODAL — for "I ate something different" logging -->
+<div class="modal-overlay" id="swap-modal-overlay" onclick="closeSwapModal(event)">
+  <div class="modal" style="max-width:580px;">
+    <button class="modal-close" onclick="cancelSwap()">✕</button>
+    <div class="modal-title" id="swap-modal-title">What did you eat instead?</div>
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:0.8rem;">Describe what you ate using foods + quantities. Example: <code style="background:var(--surface2);padding:0.1rem 0.3rem;border-radius:3px;color:var(--accent3);">200g chicken, 1 cup rice, 1 tbsp olive oil</code>. Macros auto-calculate from our food database.</p>
+    <div style="margin-bottom:0.8rem;">
+      <label for="sw-desc" style="font-family:'DM Mono',monospace;font-size:0.7rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;">What I ate</label>
+      <input id="sw-desc" type="text" placeholder="e.g. 200g chicken, 1 cup rice, broccoli" oninput="updateAutoMacros()" style="width:100%;background:var(--surface2);border:1px solid var(--border);color:var(--text);padding:0.7rem 0.8rem;border-radius:6px;font-family:'DM Mono',monospace;font-size:0.85rem;margin-top:0.3rem;" />
+    </div>
+    <div id="auto-macro-preview" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:0.7rem 1rem;margin-bottom:1rem;display:none;">
+      <div style="font-family:'DM Mono',monospace;font-size:0.6rem;color:var(--muted);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:0.4rem;">Auto-calculated</div>
+      <div id="auto-macro-content"></div>
+    </div>
+    <p style="font-size:0.72rem;color:var(--muted);margin-bottom:0.6rem;">Or override macros manually if you know them:</p>
+    <div class="edit-modal-grid">
+      <label for="sw-cal">Calories</label>        <input id="sw-cal" type="number" min="0" placeholder="auto" />
+      <label for="sw-p">Protein (g)</label>       <input id="sw-p" type="number" min="0" placeholder="auto" />
+      <label for="sw-c">Carbs (g)</label>         <input id="sw-c" type="number" min="0" placeholder="auto" />
+      <label for="sw-f">Fat (g)</label>           <input id="sw-f" type="number" min="0" placeholder="auto" />
+    </div>
+    <div class="edit-modal-actions">
+      <button class="edit-modal-cancel" onclick="cancelSwap()">Cancel</button>
+      <button class="edit-modal-save" onclick="saveSwap()">Log it</button>
+    </div>
+  </div>
+</div>
+
 <!-- Sync indicator (transient flash on each sync) -->
 <div class="sync-indicator" id="sync-indicator"></div>
 
@@ -1199,7 +1403,12 @@ const howTos = {
   "DB Bent-Over Row": "Stand holding a dumbbell in each hand. Hinge at your hips (push them back) until your torso is ~45° from horizontal, back flat, knees slightly bent. Let arms hang straight down with palms facing your body. Row both dumbbells up to your hip/lower-rib area by driving your elbows back — squeeze your shoulder blades together at the top. Lower slowly. Keep your torso position fixed throughout — don't stand up to lift the weight.",
   "DB Bicep Curl": "Stand with a dumbbell in each hand, arms at your sides, palms facing forward (supinated grip). Keep elbows pinned to your sides. Curl both dumbbells up to your shoulders by flexing your biceps — squeeze hard at the top. Lower slowly to a full stretch at the bottom. Don't swing your body or use momentum. Both arms together, or alternate.",
   "DB Floor Fly": "Lie on your back on the floor with a dumbbell in each hand. Press the dumbbells up so they're directly over your chest, palms facing each other, slight bend in the elbows (hold this bend). Open your arms out to the sides in a wide arc, lowering the dumbbells until your elbows touch the floor — feel a big stretch in your chest. Bring the dumbbells back up in the same arc, squeezing your chest hard at the top. Maintain the elbow bend the whole time — this isn't a press.",
-  "Banded Side-Lying Hip Abduction": "Lie on your side, legs stacked. Loop a resistance band around your thighs (just above the knees). Keeping your lower leg bent for stability, lift your top leg straight up against the band's resistance — squeeze the side of your glute (glute medius). Hold briefly at the top. Lower with control. This is gold for the upper outer glute (the 'shelf'). Switch sides each set."
+  "Banded Side-Lying Hip Abduction": "Lie on your side, legs stacked. Loop a resistance band around your thighs (just above the knees). Keeping your lower leg bent for stability, lift your top leg straight up against the band's resistance — squeeze the side of your glute (glute medius). Hold briefly at the top. Lower with control. This is gold for the upper outer glute (the 'shelf'). Switch sides each set.",
+  "Seated Calf Raise": "Sit on the seated calf raise machine with the balls of your feet on the platform, knees bent at 90 degrees with the pad resting on your lower thighs. Drop your heels as low as possible for a full stretch, then press up onto your toes as high as possible — squeeze the calves at the top. Lower slowly. The seated position emphasizes the soleus (the lower-calf muscle), complementing standing calf raises which target the gastrocnemius.",
+  "Smith Shoulder Press": "Set the Smith machine bar at upper-chest height. Sit on an upright bench positioned under the bar. Grip the bar slightly wider than shoulder width with hands stacked over the elbows. Unrack with a small twist of the wrists, then press up until arms are nearly straight — don't fully lock out. Lower the bar to upper chest level with control. The fixed bar path makes this safer for solo training and lets you push closer to failure than DB shoulder press.",
+  "Cable Tricep Overhead Ext": "Set the cable at the lowest position with a rope attachment. Face away from the machine and grab the rope, then step forward and bend at the hips into a slight forward lean. Start with elbows pinned next to your head, arms bent. Extend forward and slightly down — only your forearms move, upper arms stay locked. Squeeze the triceps at full extension. Slowly return to start. The overhead position puts the long head of the tricep on stretch.",
+  "Cable Tricep Pushdown": "Set the cable at the top with a straight bar or V-bar attachment. Stand facing the machine, grip the bar with elbows pinned tight at your sides. Push the bar down by extending your forearms — elbows don't move forward or back. Squeeze the triceps hard at the bottom. Control the weight back up to chest level. Don't let your shoulders shrug up — keep them down and back the whole time.",
+  "Ab Crunch Machine": "Sit on the ab crunch machine and grip the handles at chest/head level. Brace your core and crunch forward by contracting your abs — round your spine, bring your ribs toward your hips. Squeeze at the bottom of the movement. Return slowly under control — feel the stretch in your abs at the top. The machine isolates the rectus abdominis without straining your neck or lower back."
 };
 
 // ╔═════════════════════════════════════════════════════════════════════════╗
@@ -1633,10 +1842,11 @@ async function pullOverrides() {
       _lastSyncMs = Date.now();
       _lastSyncStatus = 'ok';
       updateSyncBadge();
-      const trainingSection = document.getElementById('section-training');
-      if (trainingSection && trainingSection.classList.contains('active')
-          && typeof renderDay === 'function' && before !== after) {
-        renderDay();
+      if (before !== after) {
+        const trainingActive = document.getElementById('section-training')?.classList.contains('active');
+        const nutritionActive = document.getElementById('section-nutrition')?.classList.contains('active');
+        if (trainingActive && typeof renderDay === 'function') renderDay();
+        if (nutritionActive && typeof renderNutrition === 'function') renderNutrition();
         showSyncMsg('✓ updated from cloud', 'ok');
       }
     }
@@ -1688,6 +1898,848 @@ function resetDay(phaseN, dayIdx) {
   saveOverridesLocal(o);
   postOverride(key, null); // null = reset
   renderDay();
+}
+
+// ─── Progression table overrides + propagation ───
+function getProgression(phaseN) {
+  const o = loadOverrides();
+  const key = 'p' + phaseN + '.progression';
+  if (o[key] && Array.isArray(o[key])) return o[key];
+  return phases[phaseN].progression;
+}
+function setProgression(phaseN, progression) {
+  const o = loadOverrides();
+  const key = 'p' + phaseN + '.progression';
+  o[key] = progression;
+  saveOverridesLocal(o);
+  postOverride(key, progression);
+}
+function isProgressionOverridden(phaseN) {
+  const o = loadOverrides();
+  return !!o['p' + phaseN + '.progression'];
+}
+function resetProgression(phaseN) {
+  if (!confirm('Reset the progression table for Phase ' + phaseN + ' to default?')) return;
+  const o = loadOverrides();
+  const key = 'p' + phaseN + '.progression';
+  delete o[key];
+  saveOverridesLocal(o);
+  postOverride(key, null);
+  renderDay();
+}
+function _findProgressionRow(prog, exName) {
+  for (let i = 1; i < prog.length; i++) {
+    if (prog[i][0] === exName) return i;
+  }
+  return -1;
+}
+function _shiftWeightStr(weightStr, delta) {
+  // Bump the numeric portion of a weight string by `delta`. Leaves non-numeric
+  // strings (e.g. "BW", "Med band") untouched so they don't get corrupted.
+  const num = _parseWeight(weightStr);
+  if (num == null) return weightStr;
+  const newNum = +(num + delta).toFixed(2);
+  return _replaceWeight(weightStr, newNum);
+}
+function _syncProgressionFromExercise(phaseN, exName, newWeight) {
+  // When a trainer changes an exercise's weight on the daily view, set
+  // progression Week 1 to the new value AND shift Weeks 2-N by the same
+  // delta so the natural progression curve carries forward. Example:
+  //   Old prog row: 80kg → 85kg → 90kg → 95kg, change Week 1 to 90kg
+  //   New prog row: 90kg → 95kg → 100kg → 105kg  (each shifted +10kg)
+  const prog = getProgression(phaseN).map(r => [...r]);
+  const rowIdx = _findProgressionRow(prog, exName);
+  if (rowIdx <= 0) return;
+  const oldW1 = prog[rowIdx][1];
+  const oldNum = _parseWeight(oldW1);
+  const newNum = _parseWeight(newWeight);
+  if (oldNum != null && newNum != null) {
+    const delta = newNum - oldNum;
+    // Shift every numeric week cell by the same delta
+    for (let c = 1; c < prog[rowIdx].length; c++) {
+      prog[rowIdx][c] = _shiftWeightStr(prog[rowIdx][c], delta);
+    }
+  } else {
+    // Old or new weight wasn't a number — just replace Week 1
+    prog[rowIdx][1] = newWeight;
+  }
+  setProgression(phaseN, prog);
+}
+function _syncDaysFromProgressionWeek1(phaseN, exName, newWeight) {
+  // When a trainer edits the Week 1 cell of the progression table, also
+  // update any day-view exercise rows with that exercise name. Searches all
+  // days in the phase so it works no matter which day has the exercise.
+  const days = phases[phaseN] && phases[phaseN].days ? phases[phaseN].days : [];
+  for (let d = 0; d < days.length; d++) {
+    const exs = getDayExercises(phaseN, d).map(e => ({ ...e }));
+    let touched = false;
+    for (let i = 0; i < exs.length; i++) {
+      if (exs[i].name === exName) {
+        exs[i].weight = newWeight;
+        touched = true;
+      }
+    }
+    if (touched) setDayExercises(phaseN, d, exs);
+  }
+}
+function _addProgressionRowForExercise(phaseN, exName, weight) {
+  // When a trainer adds an exercise, push a new row to the progression
+  // table. Default all 4 weeks to the same weight; trainer can edit
+  // individual cells later by clicking them.
+  const prog = getProgression(phaseN).map(r => [...r]);
+  const headerLen = prog[0].length;
+  const newRow = [exName];
+  for (let i = 1; i < headerLen; i++) newRow.push(weight);
+  prog.push(newRow);
+  setProgression(phaseN, prog);
+}
+function _removeProgressionRowForExercise(phaseN, exName) {
+  const prog = getProgression(phaseN).map(r => [...r]);
+  const rowIdx = _findProgressionRow(prog, exName);
+  if (rowIdx > 0) {
+    prog.splice(rowIdx, 1);
+    setProgression(phaseN, prog);
+  }
+}
+function editProgressionCell(phaseN, rowIdx, colIdx) {
+  const prog = getProgression(phaseN);
+  const current = prog[rowIdx][colIdx];
+  const label = rowIdx === 0 ? 'header (column name)' : (prog[rowIdx][0] + ' — ' + prog[0][colIdx]);
+  const newVal = prompt('Edit ' + label + ':', current);
+  if (newVal === null || newVal === current) return;
+
+  const newProg = prog.map(r => [...r]);
+  newProg[rowIdx][colIdx] = newVal;
+
+  // Two-way sync logic (only for data rows, not the header)
+  if (rowIdx > 0 && colIdx > 0) {
+    const oldNum = _parseWeight(current);
+    const newNum = _parseWeight(newVal);
+    const exName = newProg[rowIdx][0];
+
+    // (1) Bump every LATER week cell in the same row by the same delta —
+    //     so "Week 2: 85 → 90" also moves Week 3 + Week 4 up by 5.
+    if (oldNum != null && newNum != null) {
+      const delta = newNum - oldNum;
+      if (delta !== 0) {
+        for (let c = colIdx + 1; c < newProg[rowIdx].length; c++) {
+          newProg[rowIdx][c] = _shiftWeightStr(newProg[rowIdx][c], delta);
+        }
+      }
+    }
+
+    // (2) If you edited Week 1, propagate to the day-view exercise weight
+    //     for the same name across all days in this phase.
+    if (colIdx === 1) {
+      _syncDaysFromProgressionWeek1(phaseN, exName, newVal);
+    }
+  }
+
+  setProgression(phaseN, newProg);
+  renderDay();
+}
+
+// ─── Phase macro target overrides ───
+function getPhaseTargets(phaseN) {
+  const o = loadOverrides();
+  const key = 'macros.p' + phaseN;
+  if (o[key]) return o[key];
+  return phaseTargets[phaseN];
+}
+function isMacroOverridden(phaseN) {
+  return !!loadOverrides()['macros.p' + phaseN];
+}
+function setPhaseTargets(phaseN, targets) {
+  const o = loadOverrides();
+  const key = 'macros.p' + phaseN;
+  o[key] = targets;
+  saveOverridesLocal(o);
+  postOverride(key, targets);
+}
+function resetPhaseMacros(phaseN) {
+  if (!confirm('Reset Phase ' + phaseN + ' macro targets to default?')) return;
+  const o = loadOverrides();
+  delete o['macros.p' + phaseN];
+  saveOverridesLocal(o);
+  postOverride('macros.p' + phaseN, null);
+  renderNutrition();
+}
+
+// ─── Meal day overrides ───
+function getMealDay(week, dayIdx) {
+  const o = loadOverrides();
+  const key = 'meal.w' + week + '.d' + dayIdx;
+  if (o[key] && Array.isArray(o[key])) return o[key];
+  return mealPlan[week][dayIdx].meals;
+}
+function isMealDayOverridden(week, dayIdx) {
+  return !!loadOverrides()['meal.w' + week + '.d' + dayIdx];
+}
+function setMealDay(week, dayIdx, meals) {
+  const o = loadOverrides();
+  const key = 'meal.w' + week + '.d' + dayIdx;
+  o[key] = meals;
+  saveOverridesLocal(o);
+  postOverride(key, meals);
+}
+function resetMealDay(week, dayIdx) {
+  if (!confirm('Reset meals for Week ' + week + ' ' + DAY_NAMES[dayIdx] + ' to default?')) return;
+  const o = loadOverrides();
+  delete o['meal.w' + week + '.d' + dayIdx];
+  saveOverridesLocal(o);
+  postOverride('meal.w' + week + '.d' + dayIdx, null);
+  renderNutritionDay();
+}
+
+// ─── Macro card edit ───
+let _editingMacroPhase = -1;
+function editPhaseMacros(phaseN) {
+  _editingMacroPhase = phaseN;
+  const t = getPhaseTargets(phaseN);
+  document.getElementById('macro-modal-title').textContent = 'Edit Phase ' + phaseN + ' Daily Macro Targets';
+  document.getElementById('mc-cal').value = t.cal;
+  document.getElementById('mc-p').value = t.p;
+  document.getElementById('mc-c').value = t.c;
+  document.getElementById('mc-f').value = t.f;
+  document.getElementById('macro-modal-overlay').classList.add('open');
+}
+function cancelMacroEdit() {
+  document.getElementById('macro-modal-overlay').classList.remove('open');
+}
+function closeMacroModal(e) {
+  if (e.target === document.getElementById('macro-modal-overlay')) cancelMacroEdit();
+}
+function saveMacroEdit() {
+  const oldT = getPhaseTargets(_editingMacroPhase);
+  const newT = {
+    cal: parseInt(document.getElementById('mc-cal').value) || 0,
+    p:   parseInt(document.getElementById('mc-p').value) || 0,
+    c:   parseInt(document.getElementById('mc-c').value) || 0,
+    f:   parseInt(document.getElementById('mc-f').value) || 0,
+    deficit: oldT.deficit,
+  };
+  setPhaseTargets(_editingMacroPhase, newT);
+  cancelMacroEdit();
+  renderNutrition();
+  // Offer to rescale meals proportionally to the new kcal target
+  if (oldT.cal !== newT.cal && oldT.cal > 0) {
+    const factor = newT.cal / oldT.cal;
+    if (confirm('Rescale all meals in Phase ' + _editingMacroPhase + ' to the new ' + newT.cal + ' kcal target?\n\nMeals will be multiplied by ' + factor.toFixed(2) + '× (calories AND protein/carbs/fat all proportional).\n\nClick OK to rescale, Cancel to keep current meal portions.')) {
+      rescalePhaseMeals(_editingMacroPhase, factor);
+    }
+  }
+}
+function rescalePhaseMeals(phaseN, factor) {
+  const startWeek = phaseN === 1 ? 1 : phaseN === 2 ? 5 : 9;
+  const endWeek   = phaseN === 1 ? 4 : phaseN === 2 ? 8 : 12;
+  let count = 0;
+  for (let w = startWeek; w <= endWeek; w++) {
+    for (let d = 0; d < 7; d++) {
+      const meals = getMealDay(w, d).map(m => ({
+        ...m,
+        cal: Math.round((m.cal || 0) * factor),
+        p:   Math.round((m.p   || 0) * factor),
+        c:   Math.round((m.c   || 0) * factor),
+        f:   Math.round((m.f   || 0) * factor),
+      }));
+      setMealDay(w, d, meals);
+      count++;
+    }
+  }
+  if (typeof renderNutritionDayContent === 'function') renderNutritionDayContent();
+  alert('✓ Rescaled ' + count + ' day-plans in Phase ' + phaseN + ' by ' + factor.toFixed(2) + '×.');
+}
+
+// ─── Individual meal edit ───
+let _editingMealCtx = null;
+function editMeal(week, dayIdx, mealIdx) {
+  _editingMealCtx = { week, dayIdx, mealIdx };
+  const meal = getMealDay(week, dayIdx)[mealIdx];
+  if (!meal) return;
+  document.getElementById('meal-modal-title').textContent =
+    'Edit Meal — Week ' + week + ' · ' + DAY_NAMES[dayIdx];
+  document.getElementById('ml-time').value = meal.time || '';
+  document.getElementById('ml-name').value = meal.name || '';
+  document.getElementById('ml-desc').value = meal.desc || '';
+  document.getElementById('ml-cal').value  = meal.cal  || 0;
+  document.getElementById('ml-p').value    = meal.p    || 0;
+  document.getElementById('ml-c').value    = meal.c    || 0;
+  document.getElementById('ml-f').value    = meal.f    || 0;
+  document.getElementById('meal-modal-overlay').classList.add('open');
+}
+function cancelMealEdit() {
+  document.getElementById('meal-modal-overlay').classList.remove('open');
+}
+function closeMealModal(e) {
+  if (e.target === document.getElementById('meal-modal-overlay')) cancelMealEdit();
+}
+function saveMealEdit() {
+  if (!_editingMealCtx) return;
+  const newMeal = {
+    time: document.getElementById('ml-time').value.trim(),
+    name: document.getElementById('ml-name').value.trim(),
+    desc: document.getElementById('ml-desc').value.trim(),
+    cal:  parseInt(document.getElementById('ml-cal').value) || 0,
+    p:    parseInt(document.getElementById('ml-p').value)   || 0,
+    c:    parseInt(document.getElementById('ml-c').value)   || 0,
+    f:    parseInt(document.getElementById('ml-f').value)   || 0,
+  };
+  if (!newMeal.name) { alert('Name required.'); return; }
+  const ctx = _editingMealCtx;
+  const meals = getMealDay(ctx.week, ctx.dayIdx).map(m => ({ ...m }));
+  meals[ctx.mealIdx] = newMeal;
+  setMealDay(ctx.week, ctx.dayIdx, meals);
+  cancelMealEdit();
+  renderNutritionDay();
+}
+
+// ╔═════════════════════════════════════════════════════════════════════════╗
+// ║  CLIENT-SIDE MEAL LOGGING                                               ║
+// ║  Client taps ✓ ATE / ⚠ SWAP / ✗ SKIP on each meal. Logs locally to      ║
+// ║  localStorage AND pushes to the coach dashboard via webhook.            ║
+// ║  Daily ACTUALS row at bottom of nutrition view computed from logs.      ║
+// ╚═════════════════════════════════════════════════════════════════════════╝
+
+function _mealLogKey() { return CLIENT_CONFIG.client.storageKey + '_meal_log'; }
+
+function loadMealLogs() {
+  try { return JSON.parse(localStorage.getItem(_mealLogKey()) || '{}'); }
+  catch(e) { return {}; }
+}
+
+function _mealLogId(week, dayIdx, mealIdx) {
+  return 'w' + week + '.d' + dayIdx + '.m' + mealIdx;
+}
+
+function getMealLogEntry(week, dayIdx, mealIdx) {
+  return loadMealLogs()[_mealLogId(week, dayIdx, mealIdx)] || null;
+}
+
+function saveMealLogLocal(logs) {
+  localStorage.setItem(_mealLogKey(), JSON.stringify(logs));
+}
+
+function postMealLog(entry) {
+  if (!CLIENT_CONFIG.sheetsWebhookUrl) {
+    showSyncMsg('saved locally (no cloud)', 'warn');
+    return;
+  }
+  fetch(CLIENT_CONFIG.sheetsWebhookUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      type: 'meal',
+      client: CLIENT_CONFIG.client.storageKey,
+      week:   entry.week,
+      dayIdx: entry.dayIdx,
+      mealIdx:entry.mealIdx,
+      mealName: entry.mealName,
+      status: entry.status,
+      swapDesc: entry.swapDesc || '',
+      calActual: entry.cal || 0,
+      pActual: entry.p || 0,
+      cActual: entry.c || 0,
+      fActual: entry.f || 0,
+      timestamp: new Date().toISOString(),
+    })
+  }).then(() => {
+    showSyncMsg('✓ logged', 'ok');
+    if (typeof _lastSyncMs !== 'undefined') {
+      _lastSyncMs = Date.now();
+      _lastSyncStatus = 'ok';
+      updateSyncBadge();
+    }
+  }).catch(e => {
+    console.warn('Meal log POST failed:', e);
+    showSyncMsg('✗ log sync failed', 'err');
+  });
+}
+
+function logMealQuick(week, dayIdx, mealIdx, status) {
+  // status = 'ate' | 'skip'   (swap uses logMealSwap)
+  const meals = getMealDay(week, dayIdx);
+  const meal = meals[mealIdx];
+  if (!meal) return;
+  const logs = loadMealLogs();
+  const id = _mealLogId(week, dayIdx, mealIdx);
+  const entry = {
+    week, dayIdx, mealIdx,
+    mealName: meal.name,
+    status,
+    cal: status === 'ate' ? (meal.cal || 0) : 0,
+    p:   status === 'ate' ? (meal.p   || 0) : 0,
+    c:   status === 'ate' ? (meal.c   || 0) : 0,
+    f:   status === 'ate' ? (meal.f   || 0) : 0,
+    ts:  new Date().toISOString(),
+  };
+  logs[id] = entry;
+  saveMealLogLocal(logs);
+  postMealLog(entry);
+  renderNutritionDay();
+}
+
+function unlogMeal(week, dayIdx, mealIdx) {
+  const logs = loadMealLogs();
+  const id = _mealLogId(week, dayIdx, mealIdx);
+  delete logs[id];
+  saveMealLogLocal(logs);
+  // Push a "delete" status — coach dashboard ignores rows without status
+  postMealLog({ week, dayIdx, mealIdx, mealName: '', status: 'undo' });
+  renderNutritionDay();
+}
+
+// ─── Swap modal ───
+let _swapCtx = null;
+function openSwapModal(week, dayIdx, mealIdx) {
+  _swapCtx = { week, dayIdx, mealIdx };
+  const meal = getMealDay(week, dayIdx)[mealIdx] || {};
+  document.getElementById('swap-modal-title').textContent =
+    'Swapped: ' + (meal.name || 'meal') + ' — what did you eat?';
+  document.getElementById('sw-desc').value = '';
+  document.getElementById('sw-cal').value = '';
+  document.getElementById('sw-p').value = '';
+  document.getElementById('sw-c').value = '';
+  document.getElementById('sw-f').value = '';
+  document.getElementById('swap-modal-overlay').classList.add('open');
+}
+function cancelSwap() { document.getElementById('swap-modal-overlay').classList.remove('open'); }
+function closeSwapModal(e) {
+  if (e.target === document.getElementById('swap-modal-overlay')) cancelSwap();
+}
+function updateAutoMacros() {
+  const desc = document.getElementById('sw-desc').value.trim();
+  const preview = document.getElementById('auto-macro-preview');
+  const content = document.getElementById('auto-macro-content');
+  if (!desc) { preview.style.display = 'none'; return; }
+
+  const parsed = parseFoodEntry(desc);
+  if (!parsed.items.length && parsed.errors.length === 0) {
+    preview.style.display = 'none';
+    return;
+  }
+
+  let html = '';
+  if (parsed.items.length) {
+    html += parsed.items.map(i => `
+      <div style="display:flex;justify-content:space-between;font-size:0.78rem;padding:0.2rem 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+        <span style="color:var(--text);">${i.quantity}${i.unit !== 'each' ? i.unit : ''} ${i.name}</span>
+        <span style="color:var(--muted);font-family:'DM Mono',monospace;">${i.kcal} kcal · ${i.p}p ${i.c}c ${i.f}f</span>
+      </div>
+    `).join('');
+    html += `
+      <div style="display:flex;justify-content:space-between;font-size:0.82rem;padding:0.5rem 0 0;margin-top:0.4rem;border-top:1px solid var(--border);font-weight:600;">
+        <span style="color:var(--accent3);">TOTAL</span>
+        <span style="color:var(--accent3);font-family:'DM Mono',monospace;">${parsed.totals.kcal} kcal · ${parsed.totals.p}p ${parsed.totals.c}c ${parsed.totals.f}f</span>
+      </div>
+    `;
+  }
+  if (parsed.errors.length) {
+    html += parsed.errors.map(e => `
+      <div style="font-size:0.72rem;color:var(--warn);padding:0.2rem 0;">⚠ ${e} — enter manually below</div>
+    `).join('');
+  }
+  content.innerHTML = html;
+  preview.style.display = '';
+}
+
+function saveSwap() {
+  if (!_swapCtx) return;
+  const desc = document.getElementById('sw-desc').value.trim();
+  if (!desc) { alert('Describe what you ate.'); return; }
+
+  // Auto-calc from food database parser
+  const parsed = parseFoodEntry(desc);
+  const autoCal = parsed.totals.kcal;
+  const autoP   = parsed.totals.p;
+  const autoC   = parsed.totals.c;
+  const autoF   = parsed.totals.f;
+
+  // Manual override values (if user typed)
+  const manualCal = parseInt(document.getElementById('sw-cal').value);
+  const manualP   = parseInt(document.getElementById('sw-p').value);
+  const manualC   = parseInt(document.getElementById('sw-c').value);
+  const manualF   = parseInt(document.getElementById('sw-f').value);
+
+  const meals = getMealDay(_swapCtx.week, _swapCtx.dayIdx);
+  const meal = meals[_swapCtx.mealIdx] || {};
+
+  // Priority: manual > auto-calculated > 80% of planned as fallback
+  const finalCal = !isNaN(manualCal) ? manualCal : (autoCal || Math.round((meal.cal || 0) * 0.8));
+  const finalP   = !isNaN(manualP)   ? manualP   : (autoP   || Math.round((meal.p   || 0) * 0.8));
+  const finalC   = !isNaN(manualC)   ? manualC   : (autoC   || Math.round((meal.c   || 0) * 0.8));
+  const finalF   = !isNaN(manualF)   ? manualF   : (autoF   || Math.round((meal.f   || 0) * 0.8));
+
+  const logs = loadMealLogs();
+  const id = _mealLogId(_swapCtx.week, _swapCtx.dayIdx, _swapCtx.mealIdx);
+  const entry = {
+    week: _swapCtx.week, dayIdx: _swapCtx.dayIdx, mealIdx: _swapCtx.mealIdx,
+    mealName: meal.name,
+    status: 'swap',
+    swapDesc: desc,
+    cal: finalCal, p: finalP, c: finalC, f: finalF,
+    ts: new Date().toISOString(),
+  };
+  logs[id] = entry;
+  saveMealLogLocal(logs);
+  postMealLog(entry);
+  cancelSwap();
+  renderNutritionDay();
+}
+
+// ╔═════════════════════════════════════════════════════════════════════════╗
+// ║  FOOD DATABASE — ~150 common foods (per-100g unless noted)              ║
+// ║  Halal-safe defaults (no pork). Covers proteins, carbs, fats, veg,      ║
+// ║  packaged products, common Aussie/Western items.                        ║
+// ║  PARSER handles: "200g chicken, 1 cup rice, 2 eggs, 1 tbsp olive oil"   ║
+// ║  Returns auto-calculated kcal/p/c/f for the whole entry.                ║
+// ╚═════════════════════════════════════════════════════════════════════════╝
+
+// Per 100g unless the food has "_each" entry (eg. egg, banana — per piece)
+const FOOD_DB = [
+  // ─── Proteins (cooked weights) ───
+  { name: 'Chicken Breast',        aliases: ['chicken','chicken breast','grilled chicken','chicken raw'], per: 100, unit: 'g', kcal: 165, p: 31, c: 0,  f: 3.6 },
+  { name: 'Chicken Thigh',         aliases: ['chicken thigh','chicken thighs','dark meat'],                per: 100, unit: 'g', kcal: 209, p: 26, c: 0,  f: 11 },
+  { name: 'Chicken Mince',         aliases: ['chicken mince','ground chicken','minced chicken'],          per: 100, unit: 'g', kcal: 143, p: 17, c: 0,  f: 8 },
+  { name: 'Beef Mince (lean)',     aliases: ['beef','beef mince','ground beef','lean mince','mince'],     per: 100, unit: 'g', kcal: 200, p: 26, c: 0,  f: 10 },
+  { name: 'Beef Steak (sirloin)',  aliases: ['steak','beef steak','sirloin','rump','eye fillet'],        per: 100, unit: 'g', kcal: 250, p: 26, c: 0,  f: 15 },
+  { name: 'Lamb (lean)',           aliases: ['lamb','lamb chop','lamb mince','lamb steak'],              per: 100, unit: 'g', kcal: 230, p: 25, c: 0,  f: 14 },
+  { name: 'Salmon',                aliases: ['salmon','smoked salmon','salmon fillet'],                   per: 100, unit: 'g', kcal: 208, p: 20, c: 0,  f: 13 },
+  { name: 'Tuna (in spring water)',aliases: ['tuna','tuna can','canned tuna'],                            per: 100, unit: 'g', kcal: 116, p: 26, c: 0,  f: 1 },
+  { name: 'White Fish (cod/snapper)', aliases: ['white fish','cod','snapper','barramundi','flathead'],   per: 100, unit: 'g', kcal: 105, p: 23, c: 0,  f: 1 },
+  { name: 'Turkey Breast',         aliases: ['turkey','turkey breast','turkey deli'],                     per: 100, unit: 'g', kcal: 135, p: 30, c: 0,  f: 1 },
+  { name: 'Egg',                   aliases: ['egg','eggs','boiled egg','scrambled egg','fried egg'],     per: 1,   unit: 'each', kcal: 78,  p: 6.3, c: 0.6, f: 5.3 },
+  { name: 'Egg White',             aliases: ['egg white','egg whites','liquid egg whites'],              per: 100, unit: 'g', kcal: 52,  p: 11, c: 0.7, f: 0.2 },
+  { name: 'Whey Protein',          aliases: ['whey','whey protein','protein powder','isolate','wpi'],    per: 30,  unit: 'g', kcal: 120, p: 24, c: 3,  f: 1.5 },
+  { name: 'Casein Protein',        aliases: ['casein','slow protein','night protein'],                    per: 30,  unit: 'g', kcal: 110, p: 24, c: 2,  f: 1 },
+  { name: 'Greek Yogurt',          aliases: ['greek yogurt','greek yoghurt','chobani','siggi','yopro'],   per: 100, unit: 'g', kcal: 60,  p: 10, c: 4,  f: 0.4 },
+  { name: 'Cottage Cheese',        aliases: ['cottage cheese','cottage'],                                 per: 100, unit: 'g', kcal: 98,  p: 11, c: 3.4, f: 4.3 },
+  { name: 'Cheddar Cheese',        aliases: ['cheddar','cheese','tasty cheese'],                          per: 100, unit: 'g', kcal: 403, p: 25, c: 1.3, f: 33 },
+  { name: 'Mozzarella',            aliases: ['mozzarella','mozz'],                                        per: 100, unit: 'g', kcal: 280, p: 22, c: 2,  f: 22 },
+  { name: 'Feta',                  aliases: ['feta'],                                                     per: 100, unit: 'g', kcal: 264, p: 14, c: 4,  f: 21 },
+  { name: 'Parmesan',              aliases: ['parmesan','parmegiano'],                                    per: 100, unit: 'g', kcal: 431, p: 38, c: 4,  f: 29 },
+  { name: 'Milk (full fat)',       aliases: ['milk','full fat milk','full cream milk'],                   per: 100, unit: 'ml', kcal: 60,  p: 3.2, c: 4.8, f: 3.3 },
+  { name: 'Milk (skim)',           aliases: ['skim milk','low fat milk','skinny milk'],                   per: 100, unit: 'ml', kcal: 35,  p: 3.5, c: 5,  f: 0.1 },
+  { name: 'Almond Milk',           aliases: ['almond milk','nut milk'],                                   per: 100, unit: 'ml', kcal: 17,  p: 0.6, c: 0.7, f: 1.5 },
+
+  // ─── Carbs ───
+  { name: 'White Rice (cooked)',   aliases: ['rice','white rice','jasmine rice','cooked rice'],          per: 100, unit: 'g', kcal: 130, p: 2.7, c: 28,  f: 0.3 },
+  { name: 'Brown Rice (cooked)',   aliases: ['brown rice'],                                               per: 100, unit: 'g', kcal: 112, p: 2.6, c: 23,  f: 0.9 },
+  { name: 'Basmati Rice (cooked)', aliases: ['basmati','basmati rice'],                                   per: 100, unit: 'g', kcal: 121, p: 3,   c: 25,  f: 0.4 },
+  { name: 'Pasta (cooked)',        aliases: ['pasta','spaghetti','penne','fusilli','cooked pasta'],      per: 100, unit: 'g', kcal: 158, p: 5.8, c: 31,  f: 0.9 },
+  { name: 'Oats (dry)',            aliases: ['oats','oatmeal','rolled oats','porridge oats'],            per: 100, unit: 'g', kcal: 389, p: 17,  c: 66,  f: 7 },
+  { name: 'Bread (wholegrain)',    aliases: ['bread','wholegrain bread','toast','slice of bread'],       per: 1,   unit: 'each', kcal: 80,  p: 4,  c: 14, f: 1.5 },
+  { name: 'Wrap (wholegrain)',     aliases: ['wrap','tortilla','large wrap','small wrap'],               per: 1,   unit: 'each', kcal: 220, p: 7,  c: 38, f: 5 },
+  { name: 'Bagel',                 aliases: ['bagel','wholegrain bagel'],                                 per: 1,   unit: 'each', kcal: 280, p: 11, c: 56, f: 1.5 },
+  { name: 'Potato (boiled)',       aliases: ['potato','boiled potato','mashed potato','baby potato'],    per: 100, unit: 'g', kcal: 87,  p: 1.9, c: 20,  f: 0.1 },
+  { name: 'Sweet Potato',          aliases: ['sweet potato','kumara'],                                    per: 100, unit: 'g', kcal: 86,  p: 1.6, c: 20,  f: 0.1 },
+  { name: 'Couscous (cooked)',     aliases: ['couscous'],                                                 per: 100, unit: 'g', kcal: 112, p: 3.8, c: 23,  f: 0.2 },
+  { name: 'Quinoa (cooked)',       aliases: ['quinoa'],                                                   per: 100, unit: 'g', kcal: 120, p: 4.4, c: 21,  f: 1.9 },
+  { name: 'Banana',                aliases: ['banana','bananas'],                                         per: 1,   unit: 'each', kcal: 105, p: 1.3, c: 27, f: 0.4 },
+  { name: 'Apple',                 aliases: ['apple','apples'],                                           per: 1,   unit: 'each', kcal: 95,  p: 0.5, c: 25, f: 0.3 },
+  { name: 'Orange',                aliases: ['orange'],                                                   per: 1,   unit: 'each', kcal: 62,  p: 1.2, c: 15, f: 0.2 },
+  { name: 'Berries (mixed)',       aliases: ['berries','blueberries','raspberries','strawberries'],      per: 100, unit: 'g', kcal: 50,  p: 0.7, c: 12,  f: 0.3 },
+  { name: 'Honey',                 aliases: ['honey'],                                                    per: 1,   unit: 'tbsp', kcal: 64,  p: 0.1, c: 17, f: 0 },
+  { name: 'Rice Cakes',            aliases: ['rice cake','rice cakes'],                                   per: 1,   unit: 'each', kcal: 35,  p: 0.7, c: 7.3, f: 0.3 },
+  { name: 'Crackers (wholegrain)', aliases: ['cracker','crackers','vita wheat','salada'],                per: 1,   unit: 'each', kcal: 22,  p: 0.6, c: 4.2, f: 0.4 },
+  { name: 'Granola',               aliases: ['granola','muesli'],                                         per: 30,  unit: 'g', kcal: 130, p: 3,   c: 22,  f: 4 },
+
+  // ─── Fats / Oils / Nuts ───
+  { name: 'Olive Oil',             aliases: ['olive oil','oil','evoo'],                                   per: 1,   unit: 'tbsp', kcal: 119, p: 0,  c: 0,  f: 14 },
+  { name: 'Butter',                aliases: ['butter'],                                                   per: 1,   unit: 'tbsp', kcal: 102, p: 0.1, c: 0, f: 12 },
+  { name: 'Avocado',               aliases: ['avocado','avo'],                                            per: 1,   unit: 'each', kcal: 230, p: 3,  c: 12, f: 21 },
+  { name: 'Peanut Butter',         aliases: ['peanut butter','pb','natural pb'],                          per: 1,   unit: 'tbsp', kcal: 94,  p: 4,  c: 3,  f: 8 },
+  { name: 'Almonds',               aliases: ['almonds','almond'],                                         per: 30,  unit: 'g', kcal: 174, p: 6.4, c: 5.4, f: 15 },
+  { name: 'Peanuts',               aliases: ['peanuts','peanut'],                                         per: 30,  unit: 'g', kcal: 170, p: 7.7, c: 4.9, f: 14 },
+  { name: 'Walnuts',               aliases: ['walnuts','walnut'],                                         per: 30,  unit: 'g', kcal: 196, p: 4.6, c: 4.1, f: 19 },
+  { name: 'Cashews',               aliases: ['cashews','cashew'],                                         per: 30,  unit: 'g', kcal: 165, p: 5.4, c: 9.2, f: 13 },
+  { name: 'Mixed Nuts',            aliases: ['mixed nuts','nuts','trail mix'],                            per: 30,  unit: 'g', kcal: 180, p: 6,   c: 6,   f: 16 },
+
+  // ─── Vegetables (cooked or raw, calorie-light) ───
+  { name: 'Broccoli',              aliases: ['broccoli'],                                                 per: 100, unit: 'g', kcal: 35,  p: 2.4, c: 7, f: 0.4 },
+  { name: 'Spinach',               aliases: ['spinach','baby spinach'],                                   per: 100, unit: 'g', kcal: 23,  p: 2.9, c: 3.6, f: 0.4 },
+  { name: 'Capsicum',              aliases: ['capsicum','bell pepper'],                                   per: 100, unit: 'g', kcal: 31,  p: 1,  c: 6,  f: 0.3 },
+  { name: 'Mixed Greens (cooked)', aliases: ['greens','mixed greens','steamed greens','salad greens'],   per: 100, unit: 'g', kcal: 25,  p: 2,  c: 4,  f: 0.3 },
+  { name: 'Carrot',                aliases: ['carrot','carrots'],                                         per: 100, unit: 'g', kcal: 41,  p: 0.9, c: 10, f: 0.2 },
+  { name: 'Cucumber',              aliases: ['cucumber'],                                                 per: 100, unit: 'g', kcal: 16,  p: 0.7, c: 3.6, f: 0.1 },
+  { name: 'Tomato',                aliases: ['tomato','cherry tomato'],                                   per: 100, unit: 'g', kcal: 18,  p: 0.9, c: 3.9, f: 0.2 },
+  { name: 'Lettuce',               aliases: ['lettuce','romaine','iceberg'],                              per: 100, unit: 'g', kcal: 15,  p: 1.4, c: 2.9, f: 0.2 },
+
+  // ─── Packaged products / common Aussie items ───
+  { name: 'Quest Bar',             aliases: ['quest bar','quest','protein bar'],                          per: 1,   unit: 'each', kcal: 190, p: 21,  c: 22, f: 8 },
+  { name: 'Up&Go Protein',         aliases: ['up&go','up and go','upgo'],                                 per: 1,   unit: 'each', kcal: 230, p: 18,  c: 32, f: 4 },
+  { name: 'Oxyshred RTD',          aliases: ['oxyshred','oxyshred rtd'],                                  per: 1,   unit: 'each', kcal: 150, p: 25,  c: 6,  f: 3 },
+  { name: 'Maxine Burn RTD',       aliases: ['maxine burn','maxine','burn rtd'],                          per: 1,   unit: 'each', kcal: 180, p: 24,  c: 12, f: 5 },
+  { name: 'YoPro Yoghurt',         aliases: ['yopro','yo pro'],                                           per: 1,   unit: 'each', kcal: 180, p: 22,  c: 22, f: 2 },
+  { name: 'Chobani Protein',       aliases: ['chobani','chobani protein'],                                per: 1,   unit: 'each', kcal: 130, p: 17,  c: 12, f: 1.5 },
+  { name: 'Whey Shake (30g)',      aliases: ['whey shake','protein shake'],                               per: 1,   unit: 'each', kcal: 150, p: 27,  c: 5,  f: 2 },
+
+  // ─── Common compound meals (rough estimates — when client logs "ate burger" etc.) ───
+  { name: 'Big Mac',               aliases: ['big mac'],                                                  per: 1,   unit: 'each', kcal: 563, p: 26, c: 44, f: 33 },
+  { name: 'McChicken',             aliases: ['mcchicken'],                                                per: 1,   unit: 'each', kcal: 400, p: 14, c: 39, f: 21 },
+  { name: 'Grilled Chicken Wrap (Maccas)', aliases: ['grilled chicken wrap','maccas wrap','mcdonalds wrap'], per: 1, unit: 'each', kcal: 330, p: 21, c: 36, f: 12 },
+  { name: 'Quarter Pounder',       aliases: ['quarter pounder','qp'],                                     per: 1,   unit: 'each', kcal: 520, p: 30, c: 41, f: 26 },
+  { name: 'Subway 6-inch (chicken)', aliases: ['subway','6-inch sub','chicken sub'],                     per: 1,   unit: 'each', kcal: 350, p: 26, c: 47, f: 6 },
+  { name: 'Subway Footlong (chicken)', aliases: ['footlong','footlong sub'],                             per: 1,   unit: 'each', kcal: 690, p: 50, c: 92, f: 12 },
+  { name: 'Caesar Salad with Chicken', aliases: ['caesar salad','caesar'],                               per: 1,   unit: 'each', kcal: 470, p: 35, c: 18, f: 28 },
+  { name: 'Burrito Bowl (chicken+rice)', aliases: ['burrito bowl','guzman','chipotle bowl'],             per: 1,   unit: 'each', kcal: 650, p: 40, c: 70, f: 22 },
+  { name: 'Slice of Pizza',        aliases: ['pizza slice','slice of pizza','pizza'],                    per: 1,   unit: 'each', kcal: 285, p: 12, c: 36, f: 10 },
+  { name: 'Sushi Roll (8 pieces)', aliases: ['sushi','sushi roll','salmon roll'],                        per: 1,   unit: 'each', kcal: 350, p: 15, c: 60, f: 6 },
+  { name: 'Pad Thai',              aliases: ['pad thai','padthai'],                                       per: 1,   unit: 'each', kcal: 700, p: 28, c: 95, f: 22 },
+  { name: 'Spag Bol (home portion)', aliases: ['spag bol','spaghetti bolognese','bolognese'],            per: 1,   unit: 'each', kcal: 600, p: 30, c: 70, f: 22 },
+
+  // ─── Misc / sauces ───
+  { name: 'Tomato Sauce',          aliases: ['tomato sauce','ketchup','passata'],                         per: 1,   unit: 'tbsp', kcal: 18,  p: 0.3, c: 4, f: 0 },
+  { name: 'Mayo (light)',          aliases: ['mayo','light mayo','mayonnaise'],                           per: 1,   unit: 'tbsp', kcal: 45,  p: 0,  c: 1, f: 4.5 },
+  { name: 'Soy Sauce',             aliases: ['soy sauce','soy'],                                          per: 1,   unit: 'tbsp', kcal: 8,   p: 1, c: 0.8, f: 0 },
+  { name: 'Sour Cream',            aliases: ['sour cream'],                                               per: 1,   unit: 'tbsp', kcal: 30,  p: 0.4, c: 0.6, f: 3 },
+];
+
+// Volume → grams conversions (rough)
+const UNIT_TO_G = {
+  'g': 1, 'gram': 1, 'grams': 1, 'gms': 1,
+  'kg': 1000, 'kilogram': 1000,
+  'oz': 28.35, 'ounce': 28.35,
+  'lb': 453.6, 'lbs': 453.6, 'pound': 453.6,
+  'ml': 1, 'l': 1000, 'liter': 1000, 'litre': 1000,
+  'cup': 158,   // for rice — approx, adjusted per food below
+  'cups': 158,
+  'tbsp': 14, 'tbs': 14, 'tablespoon': 14, 'tablespoons': 14,
+  'tsp': 5, 'teaspoon': 5, 'teaspoons': 5,
+};
+
+function _lookupFood(name) {
+  const n = name.toLowerCase().trim();
+  // Exact alias match first
+  for (const f of FOOD_DB) {
+    if (f.aliases.includes(n)) return f;
+  }
+  // Substring match
+  for (const f of FOOD_DB) {
+    for (const a of f.aliases) {
+      if (n.includes(a) || a.includes(n)) return f;
+    }
+  }
+  return null;
+}
+
+function _parseFoodPiece(piece) {
+  // Parse a single piece like "200g chicken" or "1 cup rice" or "2 eggs"
+  piece = piece.trim();
+  if (!piece) return null;
+  // Match: quantity (number, optional decimal) + unit (optional) + food name
+  // e.g. "200g chicken", "1.5 cup rice", "2 eggs", "1 banana"
+  const m = piece.match(/^(\d+(?:\.\d+)?)\s*([a-zA-Z]+)?\s*(.+)$/);
+  if (!m) {
+    // No quantity — assume 1 serving
+    const food = _lookupFood(piece);
+    if (!food) return { error: 'Unknown food: ' + piece };
+    return _scaleFood(food, 1);
+  }
+  const qty = parseFloat(m[1]);
+  let unit = (m[2] || '').toLowerCase();
+  let foodName = m[3].trim();
+
+  // If "unit" is actually part of the food name (e.g. "2 eggs" — qty=2, unit='eggs')
+  if (!UNIT_TO_G[unit]) {
+    // Reconstruct: maybe unit is part of food name
+    foodName = (unit + ' ' + foodName).trim();
+    unit = '';
+  }
+
+  const food = _lookupFood(foodName);
+  if (!food) return { error: 'Unknown food: ' + foodName };
+
+  // Compute grams
+  let grams;
+  if (food.unit === 'each' || food.unit === 'tbsp' || food.unit === 'tsp') {
+    // Food is "per piece" — multiply by quantity directly
+    return _scaleFood(food, qty);
+  }
+  // Food is per 100g/100ml — convert input qty/unit to grams
+  if (!unit) {
+    // No unit specified — assume grams
+    grams = qty;
+  } else {
+    grams = qty * (UNIT_TO_G[unit] || 1);
+  }
+  // Scale food per 100 to actual grams
+  const factor = grams / food.per;
+  return {
+    name: food.name,
+    quantity: qty,
+    unit: unit || (food.unit === 'g' ? 'g' : food.unit),
+    grams: Math.round(grams),
+    kcal: Math.round(food.kcal * factor),
+    p:    Math.round(food.p * factor * 10) / 10,
+    c:    Math.round(food.c * factor * 10) / 10,
+    f:    Math.round(food.f * factor * 10) / 10,
+  };
+}
+
+function _scaleFood(food, qty) {
+  return {
+    name: food.name,
+    quantity: qty,
+    unit: food.unit,
+    grams: null,
+    kcal: Math.round(food.kcal * qty),
+    p:    Math.round(food.p * qty * 10) / 10,
+    c:    Math.round(food.c * qty * 10) / 10,
+    f:    Math.round(food.f * qty * 10) / 10,
+  };
+}
+
+function parseFoodEntry(input) {
+  // Split on common delimiters: comma, "+" , " and "
+  const pieces = input.split(/[,;+]|\s+and\s+|\s+\+\s+/i).map(p => p.trim()).filter(Boolean);
+  const items = [];
+  let totalCal = 0, totalP = 0, totalC = 0, totalF = 0;
+  const errors = [];
+  for (const p of pieces) {
+    const r = _parseFoodPiece(p);
+    if (!r) continue;
+    if (r.error) { errors.push(r.error); continue; }
+    items.push(r);
+    totalCal += r.kcal;
+    totalP += r.p;
+    totalC += r.c;
+    totalF += r.f;
+  }
+  return {
+    items,
+    errors,
+    totals: {
+      kcal: Math.round(totalCal),
+      p: Math.round(totalP * 10) / 10,
+      c: Math.round(totalC * 10) / 10,
+      f: Math.round(totalF * 10) / 10,
+    }
+  };
+}
+
+// ╔═════════════════════════════════════════════════════════════════════════╗
+// ║  CLIENT-SIDE WORKOUT LOGGING                                            ║
+// ║  Client taps "LOG SET" on any exercise row → records actual sets/reps/  ║
+// ║  weight/RPE. Saved locally + pushed to coach dashboard.                 ║
+// ╚═════════════════════════════════════════════════════════════════════════╝
+function _workoutLogKey() { return CLIENT_CONFIG.client.storageKey + '_workout_log'; }
+
+function loadWorkoutLogs() {
+  try { return JSON.parse(localStorage.getItem(_workoutLogKey()) || '{}'); }
+  catch(e) { return {}; }
+}
+
+function saveWorkoutLogsLocal(logs) {
+  localStorage.setItem(_workoutLogKey(), JSON.stringify(logs));
+}
+
+function _workoutLogId(phase, dayIdx, exName) {
+  // Latest log per phase+day+exercise combo
+  return 'p' + phase + '.d' + dayIdx + '.' + exName;
+}
+
+function getWorkoutLogEntry(phase, dayIdx, exName) {
+  return loadWorkoutLogs()[_workoutLogId(phase, dayIdx, exName)] || null;
+}
+
+function postWorkoutLog(entry) {
+  if (!CLIENT_CONFIG.sheetsWebhookUrl) {
+    showSyncMsg('saved locally (no cloud)', 'warn');
+    return;
+  }
+  fetch(CLIENT_CONFIG.sheetsWebhookUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({
+      type: 'workout',
+      client: CLIENT_CONFIG.client.storageKey,
+      phase: entry.phase,
+      dayIdx: entry.dayIdx,
+      exerciseName: entry.exName,
+      setsActual: entry.sets,
+      repsActual: entry.reps,
+      weightActual: entry.weight,
+      rpeActual: entry.rpe,
+      notes: entry.notes || '',
+      timestamp: new Date().toISOString(),
+    })
+  }).then(() => {
+    showSyncMsg('✓ workout logged', 'ok');
+    if (typeof _lastSyncMs !== 'undefined') {
+      _lastSyncMs = Date.now();
+      _lastSyncStatus = 'ok';
+      updateSyncBadge();
+    }
+  }).catch(e => {
+    console.warn('Workout log POST failed:', e);
+    showSyncMsg('✗ workout sync failed', 'err');
+  });
+}
+
+let _workoutLogCtx = null;
+function openWorkoutLog(phase, dayIdx, exName, prescribed) {
+  _workoutLogCtx = { phase, dayIdx, exName };
+  document.getElementById('workout-log-title').textContent = exName;
+  const existing = getWorkoutLogEntry(phase, dayIdx, exName);
+  // Pre-fill with prescribed values, or with last log if it exists
+  document.getElementById('wl-sets').value   = existing ? existing.sets   : (prescribed.sets || '');
+  document.getElementById('wl-reps').value   = existing ? existing.reps   : (prescribed.reps || '');
+  document.getElementById('wl-weight').value = existing ? existing.weight : (prescribed.weight || '');
+  document.getElementById('wl-rpe').value    = existing ? existing.rpe    : (prescribed.rpe || '');
+  document.getElementById('wl-notes').value  = existing ? existing.notes  : '';
+  document.getElementById('workout-log-overlay').classList.add('open');
+}
+
+function cancelWorkoutLog() {
+  document.getElementById('workout-log-overlay').classList.remove('open');
+}
+
+function closeWorkoutLog(e) {
+  if (e.target === document.getElementById('workout-log-overlay')) cancelWorkoutLog();
+}
+
+function saveWorkoutLog() {
+  if (!_workoutLogCtx) return;
+  const entry = {
+    phase:  _workoutLogCtx.phase,
+    dayIdx: _workoutLogCtx.dayIdx,
+    exName: _workoutLogCtx.exName,
+    sets:   document.getElementById('wl-sets').value.trim(),
+    reps:   document.getElementById('wl-reps').value.trim(),
+    weight: document.getElementById('wl-weight').value.trim(),
+    rpe:    document.getElementById('wl-rpe').value.trim(),
+    notes:  document.getElementById('wl-notes').value.trim(),
+    ts:     new Date().toISOString(),
+  };
+  const logs = loadWorkoutLogs();
+  logs[_workoutLogId(entry.phase, entry.dayIdx, entry.exName)] = entry;
+  saveWorkoutLogsLocal(logs);
+  postWorkoutLog(entry);
+  cancelWorkoutLog();
+  renderDay();
+}
+
+// ─── Daily actuals from log ───
+function computeDailyActuals(week, dayIdx) {
+  const meals = getMealDay(week, dayIdx);
+  const logs = loadMealLogs();
+  let cal=0, p=0, c=0, f=0, logged=0, planned=0;
+  meals.forEach((m, mIdx) => {
+    if (!m.name) return;
+    planned++;
+    const id = _mealLogId(week, dayIdx, mIdx);
+    const log = logs[id];
+    if (log && log.status) {
+      logged++;
+      cal += log.cal || 0;
+      p   += log.p   || 0;
+      c   += log.c   || 0;
+      f   += log.f   || 0;
+    }
+  });
+  return { cal, p, c, f, logged, planned };
 }
 
 // ─── Edit UI ───
@@ -1742,14 +2794,24 @@ function saveEdit() {
   if (!newEx.name) { alert('Name is required.'); return; }
 
   const exercises = getDayExercises(currentPhase, currentDay).map(e => ({...e}));
-  let oldWeight = null, exName = newEx.name;
+  let oldWeight = null, oldName = newEx.name;
 
   if (_editingIsNew) {
     exercises.push(newEx);
+    // Propagate: also add a row to the progression table for this exercise
+    _addProgressionRowForExercise(currentPhase, newEx.name, newEx.weight);
   } else {
     oldWeight = exercises[_editingIdx].weight;
-    exName    = exercises[_editingIdx].name;
+    oldName   = exercises[_editingIdx].name;
     exercises[_editingIdx] = newEx;
+    // Propagate: if name changed, remove old progression row + add new
+    if (oldName !== newEx.name) {
+      _removeProgressionRowForExercise(currentPhase, oldName);
+      _addProgressionRowForExercise(currentPhase, newEx.name, newEx.weight);
+    } else if (oldWeight !== newEx.weight) {
+      // Weight changed — update progression Week 1
+      _syncProgressionFromExercise(currentPhase, newEx.name, newEx.weight);
+    }
   }
 
   setDayExercises(currentPhase, currentDay, exercises);
@@ -1768,6 +2830,8 @@ function deleteExercise(idx) {
   if (!confirm('Delete "' + exName + '" from this day?')) return;
   const newExs = exs.filter((_, i) => i !== idx);
   setDayExercises(currentPhase, currentDay, newExs);
+  // Propagate: remove from progression too
+  _removeProgressionRowForExercise(currentPhase, exName);
   renderDay();
 }
 
@@ -1848,9 +2912,20 @@ function renderDay() {
       ? `<button class="trainer-icon-btn" onclick="editExercise(${i})" title="Edit">✏️ EDIT</button>
          <button class="trainer-icon-btn del" onclick="deleteExercise(${i})" title="Delete">✕</button>`
       : '';
+    // Client-side workout log button (non-trainer mode only)
+    let logBtn = '', logged = '';
+    if (!trainer) {
+      const exNameEsc = ex.name.replace(/'/g, "\\'");
+      const presEsc = JSON.stringify({ sets: ex.sets, reps: ex.reps, weight: ex.weight, rpe: ex.rpe }).replace(/"/g, '&quot;');
+      logBtn = `<button class="log-set-btn" onclick="openWorkoutLog(${currentPhase},${currentDay},'${exNameEsc}',${presEsc})">📝 LOG</button>`;
+      const logEntry = getWorkoutLogEntry(currentPhase, currentDay, ex.name);
+      if (logEntry) {
+        logged = `<span class="last-logged">✓ logged: ${logEntry.sets || '?'}×${logEntry.reps || '?'} @ ${logEntry.weight || '?'} ${logEntry.rpe ? '· RPE ' + logEntry.rpe : ''}</span>`;
+      }
+    }
     return `
       <tr>
-        <td class="ex-name">${ex.name}${btn}${edBtns}</td>
+        <td class="ex-name">${ex.name}${btn}${edBtns}${logBtn}${logged}</td>
         <td class="ex-sets">${ex.sets}</td>
         <td class="ex-reps">${ex.reps}</td>
         <td class="ex-weight">${ex.weight}</td>
@@ -1869,10 +2944,18 @@ function renderDay() {
 
   const editedBadge = edited ? `<span class="trainer-edited-badge">EDITED</span>` : '';
 
-  const progRows = p.progression.map((row, i) => {
-    if (i === 0) return `<tr>${row.map(h => `<th>${h}</th>`).join('')}</tr>`;
-    return `<tr>${row.map((v, j) => `<td>${v}</td>`).join('')}</tr>`;
+  const progression = getProgression(currentPhase);
+  const progEdited = isProgressionOverridden(currentPhase);
+  const progRows = progression.map((row, rowIdx) => {
+    if (rowIdx === 0) return `<tr>${row.map(h => `<th>${h}</th>`).join('')}</tr>`;
+    return `<tr>${row.map((v, colIdx) => {
+      if (!trainer) return `<td>${v}</td>`;
+      return `<td class="prog-cell-editable" onclick="editProgressionCell(${currentPhase}, ${rowIdx}, ${colIdx})" title="Click to edit">${v}</td>`;
+    }).join('')}</tr>`;
   }).join('');
+  const progFooter = (trainer && progEdited)
+    ? `<button class="trainer-reset-btn" onclick="resetProgression(${currentPhase})" style="margin-top:0.5rem;">↶ Reset Progression to Default</button>`
+    : '';
 
   document.getElementById('workout-content').innerHTML = `
     <div class="workout-day-title">
@@ -1899,13 +2982,14 @@ function renderDay() {
   `;
 
   document.getElementById('progression-content').innerHTML = `
-    <div class="section-tag" style="margin-bottom:0.75rem;">Weekly Progression</div>
-    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Only increase weight if you hit the top of your rep range with good form.</p>
+    <div class="section-tag" style="margin-bottom:0.75rem;">Weekly Progression ${progEdited ? '<span class="trainer-edited-badge">EDITED</span>' : ''}</div>
+    <p style="font-size:0.85rem;color:var(--muted);margin-bottom:1rem;">Only increase weight if you hit the top of your rep range with good form.${trainer ? ' <span style="color:#ff6644;">Trainer: click any cell to edit. Changing a cell bumps every LATER week by the same delta. Editing Week 1 also updates the day-view weight.</span>' : ''}</p>
     <div class="prog-table-wrap">
       <table class="prog-table">
         <tbody>${progRows}</tbody>
       </table>
     </div>
+    ${progFooter}
   `;
 }
 
@@ -2028,8 +3112,46 @@ async function saveCheckin(){
       emailOk = false;
     }
   }
+  // v2 Apps Script: send TWO POSTs — one to WeightLog, one to CheckIns.
+  // This way the dashboard tracks weight history separately from check-ins.
   if(SHEETS_WEBHOOK_URL){
-    try{await fetch(SHEETS_WEBHOOK_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify({week:String(week),weight:String(weight),lost:String(lost),energy:energy||'—',sleep:sleep||'—',stress:stress||'—',feeling:feeling||'—',notes:notes,date:date})});sheetsOk=true;console.log('Sheet updated');}catch(err){console.error('Sheets:',err);sheetsOk=false;}
+    try {
+      // 1. Push to WeightLog tab
+      await fetch(SHEETS_WEBHOOK_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          type: 'weight',
+          client: CLIENT_CONFIG.client.storageKey,
+          weightKg: weight,
+          notes: 'check-in week ' + week,
+          timestamp: new Date().toISOString(),
+        })
+      });
+      // 2. Push to CheckIns tab
+      await fetch(SHEETS_WEBHOOK_URL, {
+        method: 'POST', mode: 'no-cors',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({
+          type: 'checkin',
+          client: CLIENT_CONFIG.client.storageKey,
+          week: week,
+          weightKg: weight,
+          energy1to10: energy,
+          sleepHours: sleep,
+          stress1to10: stress,
+          dietAdherence1to10: feeling,
+          trainingAdherence1to10: feeling,
+          notes: notes,
+          timestamp: new Date().toISOString(),
+        })
+      });
+      sheetsOk = true;
+      console.log('Sheet updated (weight + checkin)');
+    } catch(err) {
+      console.error('Sheets:', err);
+      sheetsOk = false;
+    }
   }
   showStatus('✅ Logged! '+(emailOk?'📧 Email sent':'⚠ Email failed')+' · '+(sheetsOk?'📊 Sheet updated':'⚠ Sheet failed'),emailOk&&sheetsOk?'var(--accent3)':'var(--accent2)');
   btn.textContent='📊 Log Check-In + Send to Trainer';btn.disabled=false;
@@ -2177,8 +3299,10 @@ function submitNutritionCode(n){
 }
 
 function renderNutrition(){
-  const t=phaseTargets[currentNutritionPhase];
+  const t=getPhaseTargets(currentNutritionPhase);
   const phase=currentNutritionPhase;
+  const trainerMode=_safeIsTrainerMode();
+  const macroEdited=isMacroOverridden(phase);
   const startWeek=phase===1?1:phase===2?5:9;
   const endWeek=phase===1?4:phase===2?8:12;
   const rationale=['Foundation phase. Moderate deficit (700 kcal) — fat loss starts steady at ~0.7–0.8 kg/wk while you build the training habit and the food rhythm. Protein at 1.8 g/kg is the most important number on this whole plan — it protects every kg of muscle you\'ve already built and supports your metabolism through the cut. No suffering required; this phase is about showing up. The 4-year journey you\'ve already been on is the foundation — this 12 weeks is the next floor.','Acceleration phase. Deficit widens to 900 kcal — loss accelerates toward ~0.9–1.0 kg/wk. Training intensity climbs (heavier DBs, harder bands, 2×8–10 dominant). Carbs taper but stay timed around training so your sessions don\'t crash. The \'stuck\' feeling fades here because the scale moves again — but the real win is that you\'re stronger than you were 4 weeks ago. That strength is yours, recession-proof.','Push phase. Largest deficit (1100 kcal) and the leanest you\'ll be on this program. Glute volume HOLDS — don\'t drop sets because you\'re tired or hungry; that\'s how the shape stays. 2×6–8 on the heavy lifts. Final 4 weeks earn the visible reveal. PCOS-adapted: this deficit is sustainable because protein stays high and the carb timing keeps insulin/energy stable. If a session feels brutal, scale the load — never skip the day.'][phase-1];
@@ -2187,12 +3311,17 @@ function renderNutrition(){
   const cPct=Math.round((t.c*4/totalMacroKcal)*100);
   const fPct=100-pPct-cPct;
   const weekBtns=Array.from({length:endWeek-startWeek+1},(_,i)=>{const w=startWeek+i;return`<button class="nutr-week-btn day-tab ${w===currentNutritionWeek?'active':''}" onclick="setNutritionWeek(${w})">Week ${w}</button>`;}).join('');
+  const macroCardClass = trainerMode ? 'info-card macro-card-editable' : 'info-card';
+  const macroCardClick = trainerMode ? `onclick="editPhaseMacros(${phase})" title="Click to edit"` : '';
+  const editPrompt = trainerMode ? ' <span style="color:#ff6644;font-size:0.7rem;">Trainer: click any macro card to edit. Editing kcal offers to rescale meals.</span>' : '';
+  const macroResetBtn = (trainerMode && macroEdited) ? `<button class="trainer-reset-btn" onclick="resetPhaseMacros(${phase})">↶ Reset Phase ${phase} Macros</button>` : '';
   document.getElementById('nutrition-main').innerHTML=`
+    ${editPrompt ? `<div style="margin-bottom:0.5rem;text-align:right;">${editPrompt} ${macroResetBtn}</div>` : ''}
     <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:1.5rem;">
-      <div class="info-card"><div class="info-card-label">Daily Calories</div><div class="info-card-val">${t.cal.toLocaleString()}</div><div class="info-card-desc">~${t.deficit} kcal deficit</div></div>
-      <div class="info-card"><div class="info-card-label">Protein</div><div class="info-card-val" style="color:var(--accent)">${t.p}g</div><div class="info-card-desc">1.8g/kg · muscle + PCOS shield</div></div>
-      <div class="info-card"><div class="info-card-label">Carbs</div><div class="info-card-val" style="color:var(--accent2)">${t.c}g</div><div class="info-card-desc">Around workouts</div></div>
-      <div class="info-card"><div class="info-card-label">Fat</div><div class="info-card-val" style="color:var(--accent3)">${t.f}g</div><div class="info-card-desc">Hormones + satiety</div></div>
+      <div class="${macroCardClass}" ${macroCardClick}><div class="info-card-label">Daily Calories ${macroEdited ? '<span class="trainer-edited-badge">EDITED</span>' : ''}</div><div class="info-card-val">${t.cal.toLocaleString()}</div><div class="info-card-desc">~${t.deficit} kcal deficit</div></div>
+      <div class="${macroCardClass}" ${macroCardClick}><div class="info-card-label">Protein</div><div class="info-card-val" style="color:var(--accent)">${t.p}g</div><div class="info-card-desc">1.8g/kg · muscle + PCOS shield</div></div>
+      <div class="${macroCardClass}" ${macroCardClick}><div class="info-card-label">Carbs</div><div class="info-card-val" style="color:var(--accent2)">${t.c}g</div><div class="info-card-desc">Around workouts</div></div>
+      <div class="${macroCardClass}" ${macroCardClick}><div class="info-card-label">Fat</div><div class="info-card-val" style="color:var(--accent3)">${t.f}g</div><div class="info-card-desc">Hormones + satiety</div></div>
     </div>
     <div style="background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:1rem 1.2rem;margin-bottom:1.5rem;">
       <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:0.6rem;">MACRO SPLIT</div>
@@ -2227,32 +3356,79 @@ function renderNutritionDay(){
 }
 
 function renderNutritionDayContent(){
-  const dayData=mealPlan[currentNutritionWeek][currentNutritionDay];
-  const t=phaseTargets[currentNutritionPhase];
+  const meals=getMealDay(currentNutritionWeek,currentNutritionDay);
+  const t=getPhaseTargets(currentNutritionPhase);
+  const trainerMode=_safeIsTrainerMode();
+  const dayEdited=isMealDayOverridden(currentNutritionWeek,currentNutritionDay);
   const isRestDay=currentNutritionDay===5||currentNutritionDay===6;
   const isCardioDay=false;
   const typeBadgeColor=isRestDay?'var(--accent3)':isCardioDay?'var(--accent2)':'var(--accent)';
   const typeBadge=currentNutritionDay===6?'😴 REST + MEAL PREP':currentNutritionDay===5?'😴 REST DAY':'💪 TRAINING DAY';
-  const validMeals=dayData.meals.filter(m=>m.name);
+  const validMeals=meals.filter(m=>m.name);
   const totalCal=validMeals.reduce((s,m)=>s+m.cal,0);
   const totalP=validMeals.reduce((s,m)=>s+m.p,0);
   const totalC=validMeals.reduce((s,m)=>s+m.c,0);
   const totalF=validMeals.reduce((s,m)=>s+m.f,0);
   const calPct=Math.min(100,Math.round((totalCal/t.cal)*100));
-  const mealRows=validMeals.map(meal=>{
-    if(!meal.cal)return`<div style="background:rgba(0,229,160,0.05);border:1px dashed rgba(0,229,160,0.3);border-radius:10px;padding:1rem 1.5rem;text-align:center;font-size:0.85rem;color:var(--accent3);">🍳 ${meal.name} — ${meal.desc}</div>`;
-    return`<div class="meal-card" style="grid-template-columns:140px 1fr 52px 52px 60px;">
+  const mealRows=meals.map((meal,mIdx)=>{
+    if(!meal.name) return '';
+    const pencil = trainerMode ? `<button class="meal-edit-pencil" onclick="editMeal(${currentNutritionWeek},${currentNutritionDay},${mIdx})">✏️ EDIT</button>` : '';
+    // Client-mode logging UI (only show in non-trainer mode)
+    let logUI = '';
+    if (!trainerMode) {
+      const logEntry = getMealLogEntry(currentNutritionWeek, currentNutritionDay, mIdx);
+      if (logEntry && logEntry.status) {
+        const label = logEntry.status === 'ate' ? '✓ ATE' : logEntry.status === 'swap' ? '⚠ SWAPPED' : '✗ SKIPPED';
+        const sub = logEntry.swapDesc ? ` — ${logEntry.swapDesc}` : '';
+        logUI = `<div class="meal-log-row"><span class="meal-log-status ${logEntry.status}">${label}${sub}<span class="undo" onclick="unlogMeal(${currentNutritionWeek},${currentNutritionDay},${mIdx})">undo</span></span></div>`;
+      } else {
+        logUI = `<div class="meal-log-row">
+          <button class="meal-log-btn ate-btn"  onclick="logMealQuick(${currentNutritionWeek},${currentNutritionDay},${mIdx},'ate')">✓ Ate it</button>
+          <button class="meal-log-btn swap-btn" onclick="openSwapModal(${currentNutritionWeek},${currentNutritionDay},${mIdx})">⚠ Swapped</button>
+          <button class="meal-log-btn skip-btn" onclick="logMealQuick(${currentNutritionWeek},${currentNutritionDay},${mIdx},'skip')">✗ Skipped</button>
+        </div>`;
+      }
+    }
+    if(!meal.cal)return`<div style="position:relative;background:rgba(0,229,160,0.05);border:1px dashed rgba(0,229,160,0.3);border-radius:10px;padding:1rem 1.5rem;text-align:center;font-size:0.85rem;color:var(--accent3);">🍳 ${meal.name} — ${meal.desc}${pencil}${logUI}</div>`;
+    return`<div class="meal-card" style="position:relative;grid-template-columns:140px 1fr 52px 52px 60px;">
+      ${pencil}
       <div><div class="meal-time">${meal.time}</div><div style="font-size:0.8rem;font-weight:500;color:var(--text);margin-top:0.2rem;">${meal.name}</div></div>
-      <div class="meal-food">${meal.desc}</div>
+      <div class="meal-food">${meal.desc}${logUI}</div>
       <div style="text-align:center"><div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--accent);font-weight:600;">${meal.p}g</div><div style="font-size:0.6rem;color:var(--muted)">PRO</div></div>
       <div style="text-align:center"><div style="font-family:'DM Mono',monospace;font-size:0.75rem;color:var(--accent2);font-weight:600;">${meal.c}g</div><div style="font-size:0.6rem;color:var(--muted)">CARB</div></div>
       <div style="text-align:center"><div style="font-family:'Bebas Neue',sans-serif;font-size:1.4rem;color:var(--accent3);line-height:1;">${meal.cal}</div><div style="font-size:0.6rem;color:var(--muted)">kcal</div></div>
     </div>`;
   }).join('');
+
+  // Compute daily actuals from client meal logs (only show in non-trainer mode)
+  let actualsCard = '';
+  if (!trainerMode) {
+    const a = computeDailyActuals(currentNutritionWeek, currentNutritionDay);
+    const completePct = a.planned ? Math.round((a.logged / a.planned) * 100) : 0;
+    const calPctActual = a.cal ? Math.min(100, Math.round((a.cal / t.cal) * 100)) : 0;
+    const pPctActual = a.p ? Math.min(100, Math.round((a.p / t.p) * 100)) : 0;
+    actualsCard = `
+      <div class="actuals-card ${completePct === 100 ? 'complete' : ''}">
+        <div style="font-family:'DM Mono',monospace;font-size:0.65rem;color:var(--muted);letter-spacing:0.15em;margin-bottom:0.75rem;">
+          MY ACTUAL TODAY · ${a.logged}/${a.planned} meals logged ${completePct === 100 ? '· ✓ COMPLETE' : ''}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;">
+          <div><div style="font-size:0.65rem;color:var(--muted);">Calories</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${calPctActual>=90?'var(--accent3)':'var(--accent)'};">${a.cal}</div><div style="font-size:0.65rem;color:var(--muted);">vs ${t.cal} target · ${calPctActual}%</div></div>
+          <div><div style="font-size:0.65rem;color:var(--muted);">Protein</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:${pPctActual>=90?'var(--accent3)':'var(--accent)'};">${a.p}g</div><div style="font-size:0.65rem;color:var(--muted);">vs ${t.p}g · ${pPctActual}%</div></div>
+          <div><div style="font-size:0.65rem;color:var(--muted);">Carbs</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--accent2);">${a.c}g</div><div style="font-size:0.65rem;color:var(--muted);">vs ${t.c}g</div></div>
+          <div><div style="font-size:0.65rem;color:var(--muted);">Fat</div><div style="font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--accent3);">${a.f}g</div><div style="font-size:0.65rem;color:var(--muted);">vs ${t.f}g</div></div>
+        </div>
+      </div>
+    `;
+  }
+  const dayResetBtn = (trainerMode && dayEdited) ? `<button class="trainer-reset-btn" onclick="resetMealDay(${currentNutritionWeek},${currentNutritionDay})" style="margin-top:0.5rem;">↶ Reset This Day's Meals</button>` : '';
+  const dayEditedBadge = dayEdited ? '<span class="trainer-edited-badge">EDITED</span>' : '';
   document.getElementById('nutrition-day-content').innerHTML=`
     <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;">
       <div style="font-family:'Bebas Neue',sans-serif;font-size:2rem;">${DAY_NAMES[currentNutritionDay]} — Week ${currentNutritionWeek}</div>
       <span style="font-family:'DM Mono',monospace;font-size:0.65rem;padding:0.3rem 0.8rem;border-radius:4px;background:rgba(79,127,255,0.1);border:1px solid ${typeBadgeColor};color:${typeBadgeColor};">${typeBadge}</span>
+      ${dayEditedBadge}
+      ${dayResetBtn}
     </div>
     <div class="meal-cards" style="margin-bottom:1.5rem;">${mealRows}</div>
     <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1rem 1.5rem;">
@@ -2267,7 +3443,8 @@ function renderNutritionDayContent(){
         <div style="width:${calPct}%;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:20px;transition:width 0.4s;"></div>
       </div>
       <div style="font-size:0.72rem;color:var(--muted);margin-top:0.3rem;">${calPct}% of daily calorie target</div>
-    </div>`;
+    </div>
+    ${actualsCard}`;
 }
 
 // ─── NAV LOCK ─────────────────────────────────────────────────────────────────
@@ -2476,9 +3653,10 @@ function trainerLogin(){
     const c2=document.getElementById('cardio-card-p2');if(c2){c2.style.filter='';c2.style.pointerEvents='';c2.style.userSelect='';}
     const c3=document.getElementById('cardio-card-p3');if(c3){c3.style.filter='';c3.style.pointerEvents='';c3.style.userSelect='';}
     const cu=document.getElementById('cardio-unlock-notice');if(cu)cu.style.display='none';
-    // Re-render the day so edit/add/delete buttons appear
+    // Re-render training + nutrition so all edit affordances appear
     if (typeof renderDay === 'function') renderDay();
-    alert('✓ Trainer mode active — Phase 2 + Phase 3 unlocked.\n\nEdit/Add/Delete buttons are now visible on each exercise.\nChanges save instantly and sync to the client device if the webhook is configured.');
+    if (typeof renderNutrition === 'function') renderNutrition();
+    alert('✓ Trainer mode active — Phase 2 + Phase 3 unlocked.\n\nEDIT AFFORDANCES NOW VISIBLE:\n  • Each exercise has EDIT / ✕ DELETE buttons\n  • Each day has a "+ Add Exercise" button\n  • Progression table cells — click to edit\n  • Macro cards (kcal/P/C/F) — click to edit (rescales meals)\n  • Each meal has an EDIT pencil\n\nAll changes save instantly and sync to the client device.');
   } else {
     alert('Wrong password.');
   }
